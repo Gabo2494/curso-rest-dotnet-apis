@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,12 +9,12 @@ using Microsoft.Extensions.Logging;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        private static readonly string[] ProductArray = new[]
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            "Jeans","T-shirt","Pants"
         };
 
         private readonly ILogger<ProductsController> _logger;
@@ -24,16 +25,35 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public ActionResult<IEnumerable<object>> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            int count = 0;
+            var result = ProductArray.Select(model => new
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+                Name = model,
+                Id = count++
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public object GetById(int id)
+        {
+            try
+            {
+                int count = 0;
+                var result = ProductArray.Select(model => new
+                {
+                    Name = model,
+                    Id = count++
+                }).ToList();
+                return Ok(result[id]);
+            }
+            catch (Exception)
+            {
+                return NotFound(new { codigo = System.Net.HttpStatusCode.NotFound, descripcion = "No se encontraron elementos" });
+            }
         }
     }
 }

@@ -11,21 +11,39 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using WebApi.Controllers;
 
 namespace WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            ApplicationEnviroment = environment;
         }
+
+        public IWebHostEnvironment ApplicationEnviroment { get; }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Incode
+            //AppSettings
+            //Enviroment variables
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<ApplicationSettings>(appSettingsSection);
+
+            services.AddSingleton<ApplicationSettings>(new ApplicationSettings
+            {
+                Variable = System.Environment.GetEnvironmentVariable("Variable") ?? "123"
+            }) ;
+
+            services.AddSingleton<ProductRepository>();
+
+
             services.AddCors(option => option.AddDefaultPolicy(builder => {
                 builder.AllowAnyOrigin()
                     .AllowAnyMethod()
@@ -48,6 +66,7 @@ namespace WebApi
             
 
             app.UseSwagger();
+
             app.UseSwaggerUI(c =>
             {
                 c.RoutePrefix = "api";

@@ -4,26 +4,28 @@ services:
   
   webapi:
     container_name: webapi
-    #image: stvansolano/aspnet-webapi-net3
     build: 
       context: material
-      dockerfile: WebApi\Dockerfile
+      dockerfile: WebApi/Dockerfile
 
     ports:
       - 8081:80
+    environment: 
+      - AppSettings__Variable="This is from docker"
     depends_on: 
     - db-sql-server
   
   webapp:
-    #image: stvansolano/aspnet-webapp-net3
-    build: 
-      context:material
-      dockerfile: WebApp\Dockerfile
     container_name: webapp
+    build: 
+      context : material
+      dockerfile: WebApp/Dockerfile
     environment: 
-      - ServerUrl=http://webapi:80
+      - ServerUrl=http://webapi:80/api/
+      - Variable=123
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - 80:80
+      - 8082:80
     depends_on: 
       - webapi
 
@@ -35,10 +37,3 @@ services:
     environment:
       SA_PASSWORD: "Password.123"
       ACCEPT_EULA: "Y"
-
-
-  play-with-docker:
-    container_name: play-with-docker
-    image: docker/getting-started:pwd
-    ports:
-      - 8080:80

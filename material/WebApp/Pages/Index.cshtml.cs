@@ -21,31 +21,28 @@ namespace WebApp.Pages
 
         public async Task<IActionResult> OnGet()
         {
-            try
+
+            using (var client = new HttpClient())
             {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri("http://localhost:5000/api/" /*Web API*/ );
+                // client.BaseAddress = new Uri("http://localhost:5000/api/" /*Web API*/ );
 
-                    // Request
-                    var result = await client.GetStringAsync("products");
+                var webApi = System.Environment.GetEnvironmentVariable("ServerUrl");
+                _logger.LogInformation("Web Api: {0}", webApi);
 
-                    _logger.LogInformation("Response: {0}", result);
+                client.BaseAddress = new Uri(webApi);
+                // Request
+                var result = await client.GetStringAsync("products");
 
-                    // Deserializacion (JSON -> Object)
+                _logger.LogInformation("Response: {0}", result);
 
-                    Product[] models = JsonSerializer.Deserialize<Product[]>(result);
+                // Deserializacion (JSON -> Object)
 
-                    ViewData["Models"] = models;
+                Product[] models = JsonSerializer.Deserialize<Product[]>(result);
 
-                    // 1) Cambiar Id=>id en Producto
-                    // 2) Mostrar los productos en el HTML/Razor
+                ViewData["Models"] = models;
 
-                    return Page();
-                }
-            }
-            catch (Exception ex)
-            {
+                // 1) Cambiar Id=>id en Producto
+                // 2) Mostrar los productos en el HTML/Razor
 
                 return Page();
             }

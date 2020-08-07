@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using WebApi.Controllers;
+using WebApi.Infrastructure.Data.Models;
 
 namespace WebApi
 {
@@ -33,26 +35,45 @@ namespace WebApi
             //Incode
             //AppSettings
             //Enviroment variables
+            //var appSettingsSection = Configuration.GetSection("AppSettings");
+            //services.Configure<ApplicationSettings>(appSettingsSection);
+
+            //services.AddSingleton<ApplicationSettings>(new ApplicationSettings
+            //{
+            //    Variable = System.Environment.GetEnvironmentVariable("Variable") ?? "123"
+            //}) ;
+
+            var applicationSettings = new ApplicationSettings();
             var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<ApplicationSettings>(appSettingsSection);
+            appSettingsSection.Bind(applicationSettings);
 
-            services.AddSingleton<ApplicationSettings>(new ApplicationSettings
+            var var1 = Environment.GetEnvironmentVariable("AppSettings__Variable");
+            if (!string.IsNullOrEmpty(var1))
             {
-                Variable = System.Environment.GetEnvironmentVariable("Variable") ?? "123"
-            }) ;
+                applicationSettings.Variable = var1;
+            }
 
-            services.AddSingleton<ProductRepository>();
+            services.AddSingleton(applicationSettings);
+
+            services.AddDbContext<AdventureworksContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultDataBase")));
 
 
-            services.AddCors(option => option.AddDefaultPolicy(builder => {
+            services.AddScoped<ProductRepository>();
+
+            services.AddCors(options => options.AddDefaultPolicy(builder => {
+
+                // Fluent API
                 builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
             }));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+
             services.AddControllers();
         }
 
@@ -63,17 +84,18 @@ namespace WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            
 
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
             {
-                c.RoutePrefix = "api";
+                c.RoutePrefix = "";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
             app.UseCors();
+            app.UseHttpsRedirection();
+
             app.UseRouting();
 
             app.UseAuthorization();

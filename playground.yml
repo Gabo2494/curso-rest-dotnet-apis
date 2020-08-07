@@ -16,7 +16,7 @@ services:
     environment: 
       - ServerUrl=http://webapi:80
     ports:
-      - 80:80
+      - 8082:80
     depends_on: 
       - webapi
 

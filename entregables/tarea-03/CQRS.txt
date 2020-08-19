@@ -1,0 +1,11 @@
+¿Qué es CQRS?
+CQRS es un patrón arquitectónico, donde el acrónimo significa Segregación de Responsabilidad de 
+Consulta de Comando (Command Query Responsibility Segregation, en inglés). Este patrón separa 
+los procesos de lectura y escritura de su aplicación.  Las operaciones de lectura se denominan 
+consultas y las operaciones de escritura se denominan comandos
+
+En la mayoría de los sistemas CQRS, las operaciones de lectura y escritura utilizan diferentes 
+modelos de datos, a veces incluso diferentes almacenes de datos. Este tipo de segregación hace 
+que sea más fácil escalar, leer y escribir operaciones y controlar la seguridad, pero agrega 
+complejidad adicional a tu sistema.
+

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using WebApi.Controllers;
 using WebApi.Infrastructure.Data.Models;
+using WebApi.Repositories;
 
 namespace WebApi
 {
@@ -60,6 +61,7 @@ namespace WebApi
 
 
             services.AddScoped<ProductRepository>();
+            services.AddScoped<CustomerRepository>();
 
             services.AddCors(options => options.AddDefaultPolicy(builder => {
 

@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  # Service discovery
+
+  db-sql-server:
+    container_name: ecommerceDB
+    build:
+      context: DataBaseEcommerce
+      dockerfile: Dockerfile
+    ports:
+      - 1433:1433
+    environment:
+      SA_PASSWORD: "Aa123456"
+      ACCEPT_EULA: "Y"
+
+  webapi:
+    container_name: ecommerceAPI
+    
+    build:
+      context: ECommerceBackend
+      dockerfile: ECommerceApi/Dockerfile
+    ports:
+      - 8081:80
+    environment:
+      AppSettings__Variable: "This is docker"
+      AppSettings__Swagger: "/swagger/v1/swagger.json"
+    
+    depends_on: 
+      - db-sql-server
+
+  
+  
+  
